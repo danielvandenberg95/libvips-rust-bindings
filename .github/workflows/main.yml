@@ -18,7 +18,7 @@ jobs:
         with: 
           toolchain: 1.45.2-x86_64-unknown-linux-musl
       - name: apk
-        run: apt-get update && apt-get install -y \
+        run: sudo apt-get update && apt-get install -y \
             build-base \
             pkgconfig \
             openssl-dev\
@@ -45,7 +45,7 @@ jobs:
       - name: untar
         run: mkdir vips && tar xvzf vips-${VIPS_VERSION}.tar.gz -C vips --strip-components 1
       - name: make & install
-        run: cd vips && make && make install && ldconfig /etc/ld.so.conf.d
+        run: cd vips && make && sudo make install && ldconfig /etc/ld.so.conf.d
       - name: cleanup
         run: rm -rf vips vips-${VIPS_VERSION}.tar.gz
       - name: rustup
