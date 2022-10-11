@@ -16,7 +16,7 @@ jobs:
       - name: rust-toolchain
         uses: actions-rs/toolchain@v1.0.6
       - name: apk
-        run: apk add --update --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
+        run: apt-get update && apt-get install -y \
             build-base \
             pkgconfig \
             openssl-dev\
