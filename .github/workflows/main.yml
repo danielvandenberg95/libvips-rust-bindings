@@ -7,11 +7,44 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        VIPS_VERSION: ["8.10.0"]
+    runs-on: rust:1.45-alpine3.12
     steps:
       - uses: actions/checkout@v3
-
-      - name: build
-        run: cd $GITHUB_WORKSPACE/generator && ./build.sh
+      - name: apk
+        run: apk add --update --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
+            build-base \
+            pkgconfig \
+            openssl-dev\
+            clang \
+            glib-dev \
+            expat-dev \
+            tiff-dev \
+            libjpeg-turbo-dev \
+            libexif-dev \
+            giflib-dev \
+            librsvg-dev \
+            lcms2-dev \
+            libpng-dev \
+            orc-dev \
+            libwebp-dev \
+            libheif-dev \
+            libimagequant-dev \
+            gobject-introspection-dev \
+            fftw-dev \
+            pango-dev \
+            libgsf-dev 
+      - name: get vips
+        run: wget https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.gz
+      - name: untar
+        run: mkdir vips && tar xvzf vips-${VIPS_VERSION}.tar.gz -C vips --strip-components 1
+      - name: make & install
+        run: cd vips && make && make install && ldconfig /etc/ld.so.conf.d
+      - name: cleanup
+        run: rm -rf vips vips-${VIPS_VERSION}.tar.gz
+      - name: rustup
+        run: rustup component add rustfmt --toolchain 1.45.2-x86_64-unknown-linux-musl
       - name: generate
-        run: cd $GITHUB_WORKSPACE/generator && ./generate.sh
+        run: cargo build
